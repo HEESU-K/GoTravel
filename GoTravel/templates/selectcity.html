@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Page with Modal</title>
+    <style>
+        * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background-color: white;
+        }
+
+        header .logo h1 {
+            font-size: 24px;
+            color: #00c1bc;
+        }
+
+        header nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        header nav ul li {
+            margin: 0 20px;
+        }
+
+        header nav ul li a {
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+        }
+
+        header nav ul li a.login-btn {
+            padding: 10px 20px;
+            background-color: black;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .search-section {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .search-section h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            display: inline-flex;
+            width: 50%;
+            margin-bottom: 50px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+        }
+
+        .search-bar button {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-left: none;
+            padding: 10px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+
+        .search-bar button img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .destination-section {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .filter {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .filter button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            margin: 0 15px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .filter button.active {
+            font-weight: bold;
+            color: black;
+        }
+
+
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4; /* 배경색 */
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .destinations {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between; /* 양쪽 정렬 */
+        }
+        
+        .destination-card {
+            width: 23%; /* 카드 너비 */
+            margin-bottom: 20px; /* 카드 간격 */
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-decoration: none;
+            color: black;
+            background-color: white;
+            transition: transform 0.2s;
+        }
+        
+        .destination-card:hover {
+            transform: scale(1.05); /* 카드 확대 효과 */
+        }
+        
+        .destination-card img {
+            width: 100%;
+            height: auto; /* 이미지 비율 유지 */
+        }
+        
+        .destination-info {
+            padding: 15px;
+            text-align: center; /* 텍스트 중앙 정렬 */
+        }
+        
+        .destination-info h2 {
+            font-size: 1.5em;
+            margin: 0; /* 제목 마진 제거 */
+        }
+        
+        .destination-info p {
+            margin: 5px 0; /* 설명 마진 설정 */
+            font-size: 0.9em; /* 설명 폰트 사이즈 */
+            color: #555; /* 설명 색상 */
+        }
+
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            text-align: center;
+        }
+
+        .modal-content img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .close {
+            color: black;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .create-schedule-btn {
+            padding: 10px 20px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>MYRO</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">여행지</a></li>
+                <li><a href="#">고객지원</a></li>
+                <li><a href="#">이용방법</a></li>
+                <li><a href="#" class="login-btn">로그인</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <section class="search-section">
+            <h2>어디로 여행을 떠나시나요?</h2>
+            <div class="search-bar">
+                <input type="text" placeholder="국가명이나 도시명으로 검색해보세요.">
+                <button type="submit">
+                    <img src="search-icon.png" alt="Search">
+                </button>
+            </div>
+        </section>
+
+        <section class="destination-section">
+            <div class="filter">
+                <button>전체</button>
+                <button class="active">국내</button>
+                <button>해외</button>
+            </div>
+
+            <div class="destinations">
+                {% for destination in destinations %}
+                <a href="{% url 'planning' destination.region %}" class="destination-card">
+                    <img src="{{ destination.thumbnail.url }}" alt="{{ destination.kor_name }}">
+                    <div class="destination-info">
+                        <h2>{{ destination.kor_name }}</h2>
+                        <p>{{ destination.desc }}</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <img src="JJJJ.jpg" alt-"test_image"> 
+    
+    <!-- Other modals can follow the same structure -->
+
+    <script>
+        function openModal(location) {
+            const modal = document.getElementById(`modal-${location}`);
+            modal.style.display = "block";
+        }
+
+        function closeModal(location) {
+            const modal = document.getElementById(`modal-${location}`);
+            modal.style.display = "none";
+        }
+
+        // Close modal when user clicks outside the modal content
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

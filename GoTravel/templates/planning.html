@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>여행 계획</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+    <script type="text/javascript">
+        var csrftoken = '{{ csrf_token }}';
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js"></script>
+
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            background-color: #f0f4f8;
+        }
+
+        .place-list {
+            flex: 0 0 20%; /* 화면의 25%를 차지하도록 설정 */
+            overflow-y: auto; /* 세로 스크롤 가능 */
+            padding: 20px;
+            border-right: 1px solid #d1d1d1;
+            background-color: #ffffff;
+        }
+
+        .place-list h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        #place-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .place-item {
+            border: 1px solid #d1d1d1;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+        }
+
+        .place-item:hover {
+            background-color: #f7f7f7; /* 호버 시 배경색 변경 */
+        }
+
+        .table-container {
+            flex: 1; /* 나머지 공간을 75% 차지하도록 설정 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 수직 중앙 정렬 */
+            align-items: center; /* 수평 중앙 정렬 */
+            padding: 20px;
+        }
+
+        #schedule-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px; /* 테이블과 버튼 사이의 간격 */
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #schedule-table th {
+            background-color: #f0f0f0;
+        }
+
+        /* 각 행의 높이를 줄이도록 수정 */
+        #schedule-table tr {
+            height: 30px; /* 각 행의 높이 설정 */
+        }
+
+        #schedule-table th, #schedule-table td {
+            border: 1px solid #d1d1d1;
+            padding: 5px; /* 셀의 패딩 줄이기 */
+            text-align: center;
+            color: #555;
+        }
+
+        /* 시작 시간과 도착 시간 셀의 너비 줄이기 */
+        #schedule-table td input {
+            width: 35px; /* 시간 입력 필드의 너비 줄이기 */
+            padding: 5px; /* 입력 필드의 패딩 줄이기 */
+            text-align: center; /* 입력 필드 내 텍스트 가운데 정렬 */
+        }
+
+        #save-btn {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            align-self: flex-start; /* 버튼을 왼쪽에 정렬 */
+        }
+
+        #save-btn:hover {
+            background-color: #0056b3; /* 버튼 호버 시 배경색 변경 */
+        }
+
+        .modal {
+            display: none; /* 초기 상태에서는 숨김 */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between; /* 버튼 간격 설정 */
+        }
+    </style>
+</head>
+<body>
+    <div class="place-list">
+        <h2>장소 목록</h2>
+        <ul id="place-list">
+            {% for destination in data %}
+            <li>
+                <div class="place-item">
+                    <div class="place-info">
+                        <h3>{{ destination.title }}</h3>
+                        <p class="place-desc">{{ destination.desc }}</p>
+                        <button class="add-button" onclick="openRowModal('{{ destination.title }}')">+</button>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- 여행 계획 테이블 -->
+    <div class="table-container">
+        <table id="schedule-table">
+            <thead>
+                <tr id="date-header"></tr>
+            </thead>
+            <tbody id="schedule-body">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 날짜 선택 모달 -->
+    <div id="dateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">여행 날짜 선택</div>
+            <input type="text" id="date-picker" placeholder="여행 날짜를 선택하세요" readonly>
+            <div class="modal-buttons">
+                <button onclick="confirmDateSelection()">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 여행지 삽입 모달 -->
+    <div id="placeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p id="selectedPlace">선택한 여행지: </p>
+            </div>
+            <label for="modal-date-select">날짜 선택:</label>
+            <select id="modal-date-select"></select>
+
+            <label for="modal-row-select">행 선택:</label>
+            <select id="modal-row-select">
+                <option value="1">1번째 행</option>
+                <option value="2">2번째 행</option>
+                <option value="3">3번째 행</option>
+                <option value="4">4번째 행</option>
+                <option value="5">5번째 행</option>
+                <option value="6">6번째 행</option>
+                <option value="7">7번째 행</option>
+                <option value="8">8번째 행</option>
+                <option value="9">9번째 행</option>
+                <option value="10">10번째 행</option>
+            </select>
+
+            <div class="modal-buttons">
+                <button onclick="addPlaceToTable()">확인</button>
+                <button onclick="closeModal()">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <button id="save-btn">사진 저장</button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
+    <script>
+        let selectedPlaceName = ''; // 선택한 여행지 저장용 변수
+        let selectedDates = []; // 선택한 날짜 저장용 배열
+
+        // 페이지 로드 시 날짜 선택 모달 열기
+        window.onload = function() {
+            document.getElementById('dateModal').style.display = 'block';
+        };
+
+        // Flatpickr 초기화: 날짜 범위를 선택할 수 있도록 설정
+        const datePicker = flatpickr("#date-picker", {
+            mode: "range", // 범위 선택 모드
+            dateFormat: "Y-m-d",
+            onClose: function(dates) {
+                if (dates.length === 2) {
+                    // 시작 날짜와 종료 날짜 사이의 모든 날짜를 계산하여 selectedDates 배열에 저장
+                    const startDate = dates[0];
+                    const endDate = dates[1];
+                    selectedDates = getDatesInRange(startDate, endDate);
+                }
+            }
+        });
+
+
+        // 특정 날짜 범위 내의 모든 날짜를 계산하는 함수
+        function getDatesInRange(startDate, endDate) {
+            const dateArray = [];
+            let currentDate = new Date(startDate);
+
+            while (currentDate <= endDate) {
+                dateArray.push(formatDateToLocale(currentDate)); // 로컬 날짜로 저장
+                currentDate.setDate(currentDate.getDate() + 1); // 다음 날로 이동
+            }
+
+            return dateArray;
+        }
+
+
+        // 날짜를 로컬 시간에 맞는 YYYY-MM-DD 형식으로 변환하는 함수
+        function formatDateToLocale(date) {
+            return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+                .toISOString()
+                .split('T')[0]; // 로컬 시간 기준으로 변환
+        }
+
+        // 날짜 선택 모달 확인 버튼 클릭 시
+        function confirmDateSelection() {
+            if (selectedDates.length > 0) {
+                createScheduleTable(selectedDates);
+                populateDateSelect(selectedDates); // 모달에 날짜 선택 옵션 추가
+                closeModal('dateModal'); // 모달 닫기
+            } else {
+                alert("여행 날짜를 선택해주세요.");
+            }
+        }
+
+        // 테이블 생성 함수
+        function createScheduleTable(dates) {
+            const tableHeader = document.getElementById('date-header');
+            const tableBody = document.getElementById('schedule-body');
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            // 날짜별 열 생성
+            dates.forEach(date => {
+                const th = document.createElement('th');
+                th.textContent = date;
+                th.colSpan = 3;  // 장소, 시작시간, 종료시간
+                tableHeader.appendChild(th);
+            });
+
+            // 각 날짜별 10개의 빈 행 생성
+            for (let i = 0; i < 10; i++) {
+                const tr = document.createElement('tr');
+
+                dates.forEach(date => {
+                    // 장소 셀
+                    const placeCell = document.createElement('td');
+                    placeCell.id = `${date}-place-${i+1}`;
+                    placeCell.textContent = "선택한 여행지 " + (i + 1);
+                    tr.appendChild(placeCell);
+
+                    // 시작 시간 셀
+                    const startTimeCell = document.createElement('td');
+                    const startTimeInput = document.createElement('input');
+                    startTimeInput.type = 'text';
+                    startTimeInput.classList.add('time-picker');
+                    startTimeInput.setAttribute('placeholder', '시작 시간');
+                    startTimeInput.name = `${date}-start-time-${i+1}`;
+                    flatpickr(startTimeInput, {
+                        enableTime: true,
+                        noCalendar: true,
+                        dateFormat: "H:i",
+                        time_24hr: true
+                    });
+                    startTimeCell.appendChild(startTimeInput);
+                    tr.appendChild(startTimeCell);
+
+                    // 도착 시간 셀
+                    const endTimeCell = document.createElement('td');
+                    const endTimeInput = document.createElement('input');
+                    endTimeInput.type = 'text';
+                    endTimeInput.classList.add('time-picker');
+                    endTimeInput.setAttribute('placeholder', '도착 시간');
+                    endTimeInput.name = `${date}-end-time-${i+1}`;
+                    flatpickr(endTimeInput, {
+                        enableTime: true,
+                        noCalendar: true,
+                        dateFormat: "H:i",
+                        time_24hr: true
+                    });
+                    endTimeCell.appendChild(endTimeInput);
+                    tr.appendChild(endTimeCell);
+                });
+
+                tableBody.appendChild(tr);
+            }
+        }
+
+        // 모달 열기
+        function openRowModal(place) {
+            selectedPlaceName = place;
+            document.getElementById('selectedPlace').textContent = `선택한 여행지: ${place}`;
+            document.getElementById('placeModal').style.display = 'block';
+        }
+
+        // 모달 닫기
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // 모달에 날짜 선택 옵션 추가
+        function populateDateSelect(dates) {
+            const dateSelect = document.getElementById('modal-date-select');
+            dateSelect.innerHTML = '';  // 기존 옵션 초기화
+
+            dates.forEach(date => {
+                const option = document.createElement('option');
+                option.value = date;
+                option.textContent = date;
+                dateSelect.appendChild(option);
+            });
+        }
+
+        // 선택한 여행지를 테이블에 추가
+        function addPlaceToTable() {
+            const selectedDate = document.getElementById('modal-date-select').value;
+            const selectedRow = document.getElementById('modal-row-select').value;
+            const placeCell = document.getElementById(`${selectedDate}-place-${selectedRow}`);
+
+            // 장소 셀에 선택한 여행지 추가
+            placeCell.textContent = selectedPlaceName;
+
+            closeModal('placeModal');
+        }
+
+        // 테이블을 이미지로 저장하는 함수
+        function captureTable() {
+            const scheduleTable = document.getElementById('schedule-table');
+            html2canvas(scheduleTable).then(canvas => {
+                const image = canvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = 'schedule_table.png';
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
