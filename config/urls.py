@@ -26,7 +26,6 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
     
     path('gotravel/', include('GoTravel.urls')),
 ]

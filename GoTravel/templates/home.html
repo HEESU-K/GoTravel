@@ -18,14 +18,14 @@
 {% if user.is_authenticated %}
 
   <p>Hi {{ user.username }}!</p>
-  <p><a href="{% url 'password_change' %}">Password Change</a></p>
+  <p><a href="{% url 'password_change' %}">비밀번호 변경하기</a></p>
   <form action="{% url 'logout' %}" method="post">
     {% csrf_token %}
-    <button type="submit">Log Out</button>
+    <button type="submit">로그아웃</button>
   </form>
 {% else %}
-  <p>You are not logged in</p>
-  <p><a href="{% url 'password_reset' %}">Password Reset</a></p>
-  <p><a href="{% url 'login' %}">Log In</a></p>
+  <p>로그인을 해주세요</p>
+  <p><a href="{% url 'password_reset' %}">비밀번호 변경</a></p>
+  <p><a href="{% url 'login' %}">로그인</a></p>
 {% endif %}
 {% endblock %}

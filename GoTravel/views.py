@@ -134,7 +134,8 @@ def recommendation_create(request):
     return render(request, 'recommendation_create.html', {'form': form})
 
 
-######################################################
+############ chatGPT 이용 최종 여행지 추천 기능  ##############
+
 def optimize_schedule(request):
     if request.method == 'POST':
         dates = request.POST.getlist('date')

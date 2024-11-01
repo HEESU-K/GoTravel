@@ -9,7 +9,14 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        }   
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
 
         header {
             display: flex;
@@ -80,15 +87,6 @@
             font-weight: bold;
             color: black;
         }
-
-
-
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4; /* 배경색 */
-        }
         
         .container {
             max-width: 1200px;
@@ -146,7 +144,6 @@
         }
 
 
-        /* Modal styles */
         .modal {
             display: none;
             position: fixed;
@@ -222,7 +219,6 @@
                 {% for destination in destinations %}
                 <a href="{% url 'planning' destination.region %}" class="destination-card">
                     <img src="{{ destination.thumbnail.url }}" alt="{{ destination.kor_name }}">
-                    <img src="{{ MEDIA_URL }}thumbnails/jeju.jpg" alt="test_image"> 
                     <div class="destination-info">
                         <h2>{{ destination.kor_name }}</h2>
                         <p>{{ destination.desc }}</p>
@@ -232,9 +228,6 @@
             </div>
         </section>
     </div>
-    <h1>ddddddddd</h1>
-    
-    
 
     <script>
         function openModal(location) {
