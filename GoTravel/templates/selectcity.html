@@ -3,18 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Travel Page with Modal</title>
+    <title>GoTravel</title>
     <style>
         * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-        }
+        }   
 
         header {
             display: flex;
@@ -61,32 +56,6 @@
             margin-bottom: 20px;
         }
 
-        .search-bar {
-            display: inline-flex;
-            width: 50%;
-            margin-bottom: 50px;
-        }
-
-        .search-bar input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px 0 0 5px;
-        }
-
-        .search-bar button {
-            background-color: white;
-            border: 1px solid #ccc;
-            border-left: none;
-            padding: 10px;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-        }
-
-        .search-bar button img {
-            width: 20px;
-            height: 20px;
-        }
 
         .destination-section {
             max-width: 1200px;
@@ -226,14 +195,13 @@
 <body>
     <header>
         <div class="logo">
-            <h1>MYRO</h1>
+            <h1>GoTravel</h1>
         </div>
         <nav>
             <ul>
-                <li><a href="#">여행지</a></li>
-                <li><a href="#">고객지원</a></li>
-                <li><a href="#">이용방법</a></li>
-                <li><a href="#" class="login-btn">로그인</a></li>
+                <li><a href="{% url 'selectcity' %}">여행지</a></li>
+                <li><a href="{% url 'recommendation_list' %}">게시판</a></li>
+                <li><a href="{% url 'login' %}" class="login-btn">로그인</a></li>
             </ul>
         </nav>
     </header>
@@ -241,12 +209,6 @@
     <div class="container">
         <section class="search-section">
             <h2>어디로 여행을 떠나시나요?</h2>
-            <div class="search-bar">
-                <input type="text" placeholder="국가명이나 도시명으로 검색해보세요.">
-                <button type="submit">
-                    <img src="search-icon.png" alt="Search">
-                </button>
-            </div>
         </section>
 
         <section class="destination-section">
@@ -260,6 +222,7 @@
                 {% for destination in destinations %}
                 <a href="{% url 'planning' destination.region %}" class="destination-card">
                     <img src="{{ destination.thumbnail.url }}" alt="{{ destination.kor_name }}">
+                    <img src="{{ MEDIA_URL }}thumbnails/jeju.jpg" alt="test_image"> 
                     <div class="destination-info">
                         <h2>{{ destination.kor_name }}</h2>
                         <p>{{ destination.desc }}</p>
@@ -269,10 +232,9 @@
             </div>
         </section>
     </div>
-
-    <img src="JJJJ.jpg" alt-"test_image"> 
+    <h1>ddddddddd</h1>
     
-    <!-- Other modals can follow the same structure -->
+    
 
     <script>
         function openModal(location) {

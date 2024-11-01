@@ -6,6 +6,7 @@ import json
 import logging
 
 from . import funcs
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -17,7 +18,8 @@ from django.views.generic import CreateView
 
 #from config import OPENAI_API_KEY
 
-from .models import jeju, gyeongju, yeosu, jeonju 
+from .models import jeju, gyeongju, yeosu, jeonju, Recommendation
+from .forms import RecommendationForm
 
 
 
@@ -80,7 +82,10 @@ def selectcity(request): # 도시 선택 페이지
             'kor_name': jeonju_data.kor_name,
             'thumbnail': jeonju_data.thumbnail,
         })
-    return render(request, 'selectcity.html', {'destinations': destinations})
+    return render(request, 'selectcity.html', {
+        'destinations': destinations, 
+        'MEDIA_URL': settings.MEDIA_URL,
+    })
 
 
 def planning(request, region): # 세부 플래닝 페이지
@@ -112,7 +117,24 @@ def planning(request, region): # 세부 플래닝 페이지
 
 
 
+def recommendation_list(request):
+    recommendations = Recommendation.objects.all().order_by('-created_at')
+    return render(request, 'recommendation_list.html', {'recommendations': recommendations})
 
+def recommendation_create(request):
+    if request.method == 'POST':
+        form = RecommendationForm(request.POST)
+        if form.is_valid():
+            recommendation = form.save(commit=False)
+            recommendation.author = request.user
+            recommendation.save()
+            return redirect('recommendation_list')
+    else:
+        form = RecommendationForm()
+    return render(request, 'recommendation_create.html', {'form': form})
+
+
+######################################################
 def optimize_schedule(request):
     if request.method == 'POST':
         dates = request.POST.getlist('date')

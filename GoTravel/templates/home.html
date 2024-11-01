@@ -1,18 +1,31 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block content %}
+<header>
+  <div class="logo">
+      <h1>GoTravel</h1>
+  </div>
+  <nav>
+      <ul>
+          <li><a href="{% url 'selectcity' %}">여행지</a></li>
+          <li><a href="{% url 'recommendation_list' %}">게시판</a></li>
+          <li><a href="{% url 'login' %}" class="login-btn">로그인</a></li>
+      </ul>
+  </nav>
+</header>
 {% if user.is_authenticated %}
-<p>Hi {{ user.username }}!</p>
-<p><a href="{% url 'password_change' %}">Password Change</a></p>
-<form action="{% url 'logout' %}" method="post">
-  {% csrf_token %}
-  <button type="submit">Log Out</button>
-</form>
+
+  <p>Hi {{ user.username }}!</p>
+  <p><a href="{% url 'password_change' %}">Password Change</a></p>
+  <form action="{% url 'logout' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Log Out</button>
+  </form>
 {% else %}
-<p>You are not logged in</p>
-<p><a href="{% url 'password_reset' %}">Password Reset</a></p>
-<p><a href="{% url 'login' %}">Log In</a></p>
+  <p>You are not logged in</p>
+  <p><a href="{% url 'password_reset' %}">Password Reset</a></p>
+  <p><a href="{% url 'login' %}">Log In</a></p>
 {% endif %}
 {% endblock %}

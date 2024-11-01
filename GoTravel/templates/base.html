@@ -4,6 +4,42 @@
 <head>
   <meta charset="utf-8">
   <title>{% block title %}Django Auth Tutorial{% endblock %}</title>
+  <style>
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 50px;
+        background-color: white;
+    }
+
+    header .logo h1 {
+        font-size: 24px;
+        color: #00c1bc;
+    }
+
+    header nav ul {
+        display: flex;
+        list-style: none;
+    }
+
+    header nav ul li {
+        margin: 0 20px;
+    }
+
+    header nav ul li a {
+        text-decoration: none;
+        color: black;
+        font-weight: bold;
+    }
+
+    header nav ul li a.login-btn {
+        padding: 10px 20px;
+        background-color: black;
+        color: white;
+        border-radius: 5px;
+    }
+  </style>
 </head>
 
 <body>
